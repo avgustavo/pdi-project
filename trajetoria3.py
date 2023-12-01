@@ -1,5 +1,5 @@
 from collections import defaultdict
-
+from datetime import datetime
 import cv2
 import numpy as np
 
@@ -9,11 +9,17 @@ from ultralytics import YOLO
 model = YOLO('yolov8n.pt')
 
 # Open the video file
-video_path = 'C:\\Users\\Júlia\\OneDrive\\Documentos\\code\\yt\\video.mp4'
+video_path = 'C:\\Users\\Júlia\\OneDrive\\Documentos\\code\\pdi\\video.mp4'
 cap = cv2.VideoCapture(video_path)
 
 # Store the track history
 track_history = defaultdict(lambda: [])
+start_time = defaultdict(lambda: [])
+end_time = defaultdict(lambda: [])
+iniciado = defaultdict(lambda: [])
+
+if cap.isOpened() == False:
+    raise Exception('Não foi possível abrir captura')
 
 # Loop through the video frames
 while cap.isOpened():
@@ -22,7 +28,7 @@ while cap.isOpened():
 
     if success:
         # Run YOLOv8 tracking on the frame, persisting tracks between frames
-        results = model.track(frame, persist=True, imgsz=480)
+        results = model.track(frame, persist=True)
 
         # Get the boxes and track IDs
         boxes = results[0].boxes.xywh.cpu()
@@ -36,6 +42,11 @@ while cap.isOpened():
             x, y, w, h = box
             track = track_history[track_id]
             track.append((float(x), float(y)))  # x, y center point
+            st = start_time[track_id]
+            if len(st)==0:
+                st.append(datetime.now())
+            end_time[track_id] = datetime.now()
+
             # if len(track) > 30:  # retain 90 tracks for 90 frames
             #     track.pop(0)
 
@@ -48,6 +59,10 @@ while cap.isOpened():
 
         # Break the loop if 'q' is pressed
         if cv2.waitKey(1) & 0xFF == ord("q"):
+            print('START')
+            print(start_time)
+            print('END')
+            print(end_time)
             break
     else:
         # Break the loop if the end of the video is reached

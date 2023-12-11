@@ -41,7 +41,9 @@ while cap.isOpened():
         for box, track_id in zip(boxes, track_ids):
             x, y, w, h = box
             track = track_history[track_id]
+            print(f'1{track_id} .. {track}')
             track.append((float(x), float(y)))  # x, y center point
+            print(f'2{track_id} .. {track}')
             st = start_time[track_id]
             if len(st)==0:
                 st.append(datetime.now())
@@ -71,3 +73,4 @@ while cap.isOpened():
 # Release the video capture object and close the display window
 cap.release()
 cv2.destroyAllWindows()
+
